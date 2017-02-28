@@ -3,50 +3,94 @@
 
 #include <list>
 #include <vector>
-#include <algorithm>
+
+#include <QObject>
+#include <QTimer>
 #include <opencv2/opencv.hpp>
 
-class HandAnalysis
+#define DEFAULT_SKIN_COLOR_MIN_H 30
+#define DEFAULT_SKIN_COLOR_MAX_H 180
+#define DEFAULT_SKIN_COLOR_MIN_S 0
+#define DEFAULT_SKIN_COLOR_MAX_S 255
+#define DEFAULT_SKIN_COLOR_MIN_V 100
+#define DEFAULT_SKIN_COLOR_MAX_V 255
+#define DEFAULT_CONDUCT_ERODE true
+#define DEFAULT_CONDUCT_DILATE true
+#define DEFAULT_CONDUCT_MEDIAN_BLUR true
+#define DEFAULT_KEEP_TRACKING_DURATION 2000 // milliseconds
+#define DEFAULT_DETECTION_AREA 5000 // only detect contours whose area is bigger than this value
+
+class HandAnalysis : public QObject
 {
+    Q_OBJECT
+
+signals:
+    void detected();
+    void fingersFound(int);
+    void handPos(int x, int y);
+
 public:
+    typedef std::vector<cv::Point> Contour;
 
-    void analyze(const cv::Mat & input_frame);
-    void detect(const cv::Mat & input_frame,
-                const cv::Rect & roi,
-                const cv::Scalar & color_lower_bound,
-                const cv::Scalar & color_upper_bound,
-                const bool & erode,
-                const bool & dilate,
-                const bool & median_blur);
-    bool isTracking();
-    int fingersFound();
+    HandAnalysis();
+    ~HandAnalysis();
 
-    cv::Mat & getOriginalFrame();
-    cv::Mat & getContourFrame();
-    cv::Mat & getConvexHullFrame();
+    // Try to detect hands in region of interesting
+    void detect(const cv::Mat & input_frame);
+    // Set region of interesting
+    void setROI(const cv::Rect &);
 
+    const cv::Mat & getOriginalFrame();
+    const cv::Mat & getInterestedFrame();
+    const cv::Mat & getFilteredFrame();
+    const cv::Mat & getContourFrame();
+    const cv::Mat & getConvexityFrame();
 
+    // BGR Color
     const cv::Scalar ColorGreen = cv::Scalar(47,255,173,255);
+    const cv::Scalar ColorBlue  = cv::Scalar(255, 0,  0,255);
+    const cv::Scalar ColorRed   = cv::Scalar(0  , 0,255,255);
 
-
-    const static int LowerBoundH = 30;
-    const static int LowerBoundS = 0;
-    const static int LowerBoundV = 100;
-    const static int UpperBoundH = 180;
-    const static int UpperBoundS = 255;
-    const static int UpperBoundV = 255;
+ public slots:
+    // Set region of interesting
+    void setROI(const int & start_x, const int & start_y, const int & end_x, const int & end_y);
+    // Set skin color detection range
+    void setSkinColorLowerBound(const int & H, const int & S, const int & V);
+    void setSkinColorUpperBound(const int & H, const int & S, const int & V);
+    // Perform erode before extraction contour
+    void setErode(const bool &);
+    // Perform dilate before extraction contour
+    void setDilate(const bool &);
+    // Perform median blur before extraction contour
+    void setMedianBlur(const bool &);
+    // Clear tracking data if lose tracking
+    void loseTracking();
 
 private:
-    bool is_tracking = false;
-    int _num_of_fingers;
+
     std::vector<std::pair<cv::Point, double> > _hand_centers;
+    QTimer * _tracking_timer;
+
+    cv::Rect _roi;
+    cv::Scalar _skin_color_lower_bound = cv::Scalar(DEFAULT_SKIN_COLOR_MIN_H,
+                                                    DEFAULT_SKIN_COLOR_MIN_S,
+                                                    DEFAULT_SKIN_COLOR_MIN_V);
+    cv::Scalar _skin_color_upper_bound = cv::Scalar(DEFAULT_SKIN_COLOR_MAX_H,
+                                                    DEFAULT_SKIN_COLOR_MAX_S,
+                                                    DEFAULT_SKIN_COLOR_MAX_V);
+    bool _erode       = DEFAULT_CONDUCT_ERODE;
+    bool _dilate      = DEFAULT_CONDUCT_DILATE;
+    bool _median_blur = DEFAULT_CONDUCT_MEDIAN_BLUR;
 
     cv::Mat original_frame;
+    cv::Mat interested_frame;
     cv::Mat contour_frame;
-    cv::Mat convexhull_frame;
+    cv::Mat filtered_frame;
     cv::Mat convexity_frame;
 
-    void _skinDectetor(const cv::Mat &);
+    void _skinColorDetect();
+    const Contour _contourExtract();
+    void _gestureRecognize(const Contour &);
 
 };
 

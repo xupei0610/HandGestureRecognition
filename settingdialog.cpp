@@ -6,7 +6,6 @@ SettingDialog::SettingDialog(QWidget *parent) :
     ui(new Ui::SettingDialog)
 {
     ui->setupUi(this);
-    setWindowTitle("Setting");
 }
 
 SettingDialog::~SettingDialog()
@@ -38,6 +37,151 @@ void SettingDialog::setMedianBlur(const bool & val)
         ui->chkMedianBlur->setCheckState(Qt::Unchecked);
 }
 
+void SettingDialog::setMaxH(const int & val)
+{
+    ui->barMaxH->setValue(val);
+}
+
+void SettingDialog::setMinH(const int & val)
+{
+    ui->barMinH->setValue(val);
+}
+
+void SettingDialog::setMaxS(const int & val)
+{
+    ui->barMaxS->setValue(val);
+}
+
+void SettingDialog::setMinS(const int & val)
+{
+    ui->barMinS->setValue(val);
+}
+
+void SettingDialog::setMaxV(const int & val)
+{
+    ui->barMaxV->setValue(val);
+}
+
+void SettingDialog::setMinV(const int & val)
+{
+    ui->barMinV->setValue(val);
+}
+
+void SettingDialog::setMaxROIHorizon(const int & val)
+{
+    ui->barMaxHorizon->setValue(val);
+}
+
+void SettingDialog::setMinROIHorizon(const int & val)
+{
+    ui->barMinHorizon->setValue(val);
+}
+
+void SettingDialog::setMaxROIVertical(const int & val)
+{
+    ui->barMaxVertical->setValue(val);
+}
+
+void SettingDialog::setMinROIVertical(const int & val)
+{
+    ui->barMinVertical->setValue(val);
+}
+
+
+void SettingDialog::_emitColorBoundSignal()
+{
+    emit changeColorUpperBound(_min_H > _max_H ? _min_H : _max_H,
+                               _min_S > _max_S ? _min_S : _max_S,
+                               _min_V > _max_V ? _min_V : _max_V);
+    emit changeColorLowerBound(_min_H < _max_H ? _min_H : _max_H,
+                               _min_S < _max_S ? _min_S : _max_S,
+                               _min_V < _max_V ? _min_V : _max_V);
+}
+
+void SettingDialog::_emitROISignal()
+{
+    emit changeROI(_min_ROI_horizon  < _max_ROI_horizon  ? _min_ROI_horizon  : _max_ROI_horizon,
+                   _min_ROI_vertical < _max_ROI_vertical ? _min_ROI_vertical : _max_ROI_vertical,
+                   _min_ROI_horizon  > _max_ROI_horizon  ? _min_ROI_horizon  : _max_ROI_horizon,
+                   _min_ROI_vertical > _max_ROI_vertical ? _min_ROI_vertical : _max_ROI_vertical);
+}
+
+void SettingDialog::on_btnReset_clicked()
+{
+    emit resetSetting();
+}
+
+void SettingDialog::on_barMinH_valueChanged(int value)
+{
+    ui->lblMinH->setText(QString::number(value));
+    _min_H = value;
+    _emitColorBoundSignal();
+}
+
+void SettingDialog::on_barMaxH_valueChanged(int value)
+{
+    ui->lblMaxH->setText(QString::number(value));
+    _max_H = value;
+    _emitColorBoundSignal();
+}
+
+void SettingDialog::on_barMinS_valueChanged(int value)
+{
+    ui->lblMinS->setText(QString::number(value));
+    _min_S = value;
+    _emitColorBoundSignal();
+}
+
+void SettingDialog::on_barMaxS_valueChanged(int value)
+{
+    ui->lblMaxS->setText(QString::number(value));
+    _max_S = value;
+    _emitColorBoundSignal();
+}
+
+
+void SettingDialog::on_barMinV_valueChanged(int value)
+{
+    ui->lblMinV->setText(QString::number(value));
+    _min_V = value;
+    _emitColorBoundSignal();
+}
+
+void SettingDialog::on_barMaxV_valueChanged(int value)
+{
+    ui->lblMaxV->setText(QString::number(value));
+    _max_V = value;
+    _emitColorBoundSignal();
+}
+
+void SettingDialog::on_barMinHorizon_valueChanged(int value)
+{
+    ui->lblMinHorizon->setText(QString::number(value) + QString("%"));
+    _min_ROI_horizon = value;
+    _emitROISignal();
+}
+
+void SettingDialog::on_barMaxHorizon_valueChanged(int value)
+{
+    ui->lblMaxHorizon->setText(QString::number(value) + QString("%"));
+    _max_ROI_horizon = value;
+    _emitROISignal();
+}
+
+void SettingDialog::on_barMinVertical_valueChanged(int value)
+{
+    ui->lblMinVertical->setText(QString::number(value) + QString("%"));
+    _min_ROI_vertical = value;
+    _emitROISignal();
+}
+
+void SettingDialog::on_barMaxVertical_valueChanged(int value)
+{
+    ui->lblMaxVertical->setText(QString::number(value) + QString("%"));
+    _max_ROI_vertical = value;
+    _emitROISignal();
+}
+
 bool SettingDialog::getErode()
 {
     return ui->chkErode->checkState();
@@ -51,115 +195,6 @@ bool SettingDialog::getDilate()
 bool SettingDialog::getMedianBlur()
 {
     return ui->chkMedianBlur->checkState();
-}
-
-void SettingDialog::setMaxH(const int & val)
-{
-    ui->barMaxH->setValue(val);
-    ui->lblMaxH->setText(QString::number(val));
-    _setMaxHValue(val);
-}
-
-void SettingDialog::setMinH(const int & val)
-{
-    ui->barMinH->setValue(val);
-    ui->lblMinH->setText(QString::number(val));
-    _setMinHValue(val);
-}
-
-void SettingDialog::setMaxS(const int & val)
-{
-    ui->barMaxS->setValue(val);
-    ui->lblMaxS->setText(QString::number(val));
-    _setMaxSValue(val);
-}
-
-void SettingDialog::setMinS(const int & val)
-{
-    ui->barMinS->setValue(val);
-    ui->lblMinS->setText(QString::number(val));
-    _setMinSValue(val);
-}
-
-void SettingDialog::setMaxV(const int & val)
-{
-    ui->barMaxV->setValue(val);
-    ui->lblMaxV->setText(QString::number(val));
-    _setMaxVValue(val);
-
-}
-
-void SettingDialog::setMinV(const int & val)
-{
-    ui->barMinV->setValue(val);
-    ui->lblMinV->setText(QString::number(val));
-    _setMinVValue(val);
-}
-
-void SettingDialog::_setMaxHValue(const int & val)
-{
-    if (_min_H > val)
-    {
-        _max_H = _min_H;
-        _min_H = val;
-    }
-    else
-        _max_H = val;
-}
-
-void SettingDialog::_setMinHValue(const int & val)
-{
-    if (_max_H < val)
-    {
-        _min_H = _max_H;
-        _max_H = val;
-    }
-    else
-        _min_H = val;
-}
-
-void SettingDialog::_setMaxSValue(const int & val)
-{
-    if (_min_S > val)
-    {
-        _max_S = _min_S;
-        _min_S = val;
-    }
-    else
-        _max_S = val;
-}
-
-void SettingDialog::_setMinSValue(const int & val)
-{
-    if (_max_S < val)
-    {
-        _min_S = _max_S;
-        _max_S = val;
-    }
-    else
-        _min_S = val;
-}
-
-void SettingDialog::_setMaxVValue(const int & val)
-{
-    if (_min_V > val)
-    {
-        _max_V = _min_V;
-        _min_V = val;
-    }
-    else
-        _max_V = val;
-}
-
-void SettingDialog::_setMinVValue(const int & val)
-{
-    if (_max_V < val)
-    {
-        _min_V = _max_V;
-        _max_V = val;
-    }
-    else
-        _min_V = val;
 }
 
 int SettingDialog::getMaxH()
@@ -192,47 +227,25 @@ int SettingDialog::getMinV()
     return _min_V;
 }
 
-void SettingDialog::on_barMinH_valueChanged(int value)
+std::pair<std::pair<int, int>, std::pair<int, int> > SettingDialog::getROI()
 {
-    ui->lblMinH->setText(QString::number(value));
-    _setMinHValue(value);
+    return std::make_pair(
+                std::make_pair(_min_ROI_horizon, _max_ROI_horizon),
+                std::make_pair(_min_ROI_vertical,_max_ROI_vertical)
+                );
 }
 
-void SettingDialog::on_barMaxH_valueChanged(int value)
+void SettingDialog::on_chkErode_toggled(bool checked)
 {
-    ui->lblMaxH->setText(QString::number(value));
-    _setMaxHValue(value);
+    emit changeErode(checked);
 }
 
-void SettingDialog::on_barMinS_valueChanged(int value)
+void SettingDialog::on_chkDilate_toggled(bool checked)
 {
-    ui->lblMinS->setText(QString::number(value));
-    _setMinSValue(value);
+    emit changeDilate(checked);
 }
 
-void SettingDialog::on_barMaxS_valueChanged(int value)
+void SettingDialog::on_chkMedianBlur_toggled(bool checked)
 {
-
-    ui->lblMaxS->setText(QString::number(value));
-    _setMaxSValue(value);
-}
-
-
-void SettingDialog::on_barMinV_valueChanged(int value)
-{
-
-    ui->lblMinV->setText(QString::number(value));
-    _setMinVValue(value);
-}
-
-void SettingDialog::on_barMaxV_valueChanged(int value)
-{
-
-    ui->lblMaxV->setText(QString::number(value));
-    _setMaxVValue(value);
-}
-
-void SettingDialog::on_btnReset_released()
-{
-
+    emit changeMedianBlur(checked);
 }

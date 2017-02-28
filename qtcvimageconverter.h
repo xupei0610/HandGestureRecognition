@@ -38,9 +38,9 @@ inline cv::Mat QImage2CvMat(const QImage & input_image)
                        static_cast<size_t>(temp.bytesPerLine()));
     }
     default:
-        qWarning() << "QtCVImageConverter() -- Supported QImage Input Format:" << input_image.format();
-        return cv::Mat();
+        qWarning() << "QtCVImageConverter() -- Unsupported QImage Input Format:" << input_image.format();
     }
+    return cv::Mat();
 }
 
 inline cv::Mat QPixmap2CvMat(const QPixmap & input_pixmap)
@@ -88,9 +88,9 @@ inline QImage CvMat2QImage(const cv::Mat & input_mat)
         return temp;
 #endif
     default:
-        qWarning() << "QtCVImageConverter() -- Supported CvMat Input Type:" << input_mat.type();
-        return QImage();
+        qWarning() << "QtCVImageConverter() -- Unsupported CvMat Input Type:" << input_mat.type();
     }
+    return QImage();
 }
 
 inline QPixmap CvMat2QPixmap(const cv::Mat & input_mat)
