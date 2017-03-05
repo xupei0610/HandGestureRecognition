@@ -8,7 +8,20 @@
 #include <QCameraImageCapture>
 #include <QScreen>
 #include <QDesktopWidget>
+
 #include <opencv2/opencv.hpp>
+
+#if defined(_WIN32) || defined(WIN32) || defined(__CYGWIN__) || defined(__MINGW32__) || defined(__BORLANDC__)
+    #define __WIN__
+    #include <windows.h>
+#else
+    #ifdef __APPLE__
+    #include <ApplicationServices/ApplicationServices.h>
+    #else
+        #include <X11/Xlib.h>
+
+    #endif
+#endif
 
 #include "qtcvimageconverter.h"
 #include "handanalysis.h"
@@ -35,6 +48,7 @@ public slots:
                 const int & end_y_percent);
     void makeActionBasedOnFingersNum(const int & num_of_fingers);
     void makeActionBasedOnHandPosition(const int & x, const int & y);
+    void makeAction(const int & x, const int & y, const int & num_of_fingers);
 
 private slots:
     // Update Tracking Dialog

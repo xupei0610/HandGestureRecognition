@@ -40,4 +40,4 @@ FORMS    += mainview.ui \
     trackingdialog.ui
 
 INCLUDEPATH += /usr/local/Cellar/opencv3/3.2.0/include
-LIBS += -L/usr/local/Cellar/opencv3/3.2.0/lib -lopencv_imgproc -lopencv_core
+LIBS += -L/usr/local/Cellar/opencv3/3.2.0/lib -lopencv_imgproc -lopencv_core -framework ApplicationServices

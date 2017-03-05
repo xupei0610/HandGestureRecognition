@@ -46,6 +46,7 @@ MainView::MainView(QWidget *parent) :
     connect(_tracker, SIGNAL(fingersFound(int)), this, SLOT(makeActionBasedOnFingersNum(int)));
     // Make Action according to the moverment of hand
     connect(_tracker, SIGNAL(handPos(int,int)), this, SLOT(makeActionBasedOnHandPosition(int,int)));
+    connect(_tracker, SIGNAL(handSignal(int, int,int)), this, SLOT(makeAction(int,int,int)));
 }
 
 MainView::~MainView()
@@ -125,21 +126,218 @@ void MainView::processFrame(const int &, const QImage & captured_image)
 
 }
 
+bool not_release = false;
+QTimer click_timer;
+
+void MainView::makeAction(const int &x, const int &y, const int &num_of_fingers)
+{
+    if (num_of_fingers == 2 && not_release == false && !click_timer.isActive())
+    {   // single click
+#ifdef __APPLE__
+        CGEventRef click_down = CGEventCreateMouseEvent(NULL,
+                                                        kCGEventLeftMouseDown,
+                                                        CGPointMake(QCursor::pos().x(), QCursor::pos().y()),
+                                                        kCGMouseButtonLeft);
+        CGEventRef click_up_left = CGEventCreateMouseEvent(NULL,
+                                                           kCGEventLeftMouseUp,
+                                                           CGPointMake(QCursor::pos().x(), QCursor::pos().y()),
+                                                           kCGMouseButtonLeft);
+        CGEventPost(kCGHIDEventTap, click_down);
+        CGEventPost(kCGHIDEventTap, click_up_left);
+        CFRelease(click_down);
+        CFRelease(click_up_left);
+        click_timer.start(1000);
+        click_timer.setSingleShot(true);
+#endif
+        ui->txtPanel->append(QString("Click"));
+        not_release = true;
+        return;
+    }
+    // move mouse
+    QRect screen = QApplication::desktop()->screen()->geometry();
+    float x_coord = x > 100 ? x - 100:0;
+    if (x_coord > _ROI.width-200)
+        x_coord = _ROI.width-200;
+    float y_coord = y > 80 ? y - 100:0;
+    if (y_coord > _ROI.height-200)
+        y_coord = _ROI.height-200;
+
+    auto cursor_x = static_cast<int>(x_coord/(_ROI.width-160)*screen.width());
+    auto cursor_y = static_cast<int>(y_coord/(_ROI.height-160)*screen.height());
+    if (num_of_fingers > 2 )
+    { // drag
+
+        if (not_release == false)
+        {
+            CGEventRef click_down = CGEventCreateMouseEvent(NULL,
+                                                        kCGEventLeftMouseDown,
+                                                        CGPointMake(QCursor::pos().x(), QCursor::pos().y()),
+                                                        kCGMouseButtonLeft);
+            CGEventPost(kCGHIDEventTap, click_down);
+            CFRelease(click_down);
+            not_release = true;
+        }
+
+        CGEventRef mouse_move = CGEventCreateMouseEvent(NULL, kCGEventLeftMouseDragged,
+                                                        CGPointMake(cursor_x, cursor_y),
+                                                        kCGMouseButtonLeft);
+        CGEventPost(kCGHIDEventTap, mouse_move);
+        CFRelease(mouse_move);
+        ui->txtPanel->append(QString("Drag"));
+    }
+    else
+    {
+        if (not_release == true)
+        {
+
+            CGEventRef click_up_left = CGEventCreateMouseEvent(NULL,
+                                                               kCGEventLeftMouseUp,
+                                                               CGPointMake(QCursor::pos().x(), QCursor::pos().y()),
+                                                               kCGMouseButtonLeft);
+            CGEventPost(kCGHIDEventTap, click_up_left);
+            CFRelease(click_up_left);
+        }
+        CGEventRef mouse_move = CGEventCreateMouseEvent(NULL, kCGEventMouseMoved,
+                                                        CGPointMake(cursor_x, cursor_y),
+                                                        kCGMouseButtonLeft);
+        CGEventPost(kCGHIDEventTap, mouse_move);
+        CFRelease(mouse_move);
+        not_release = false;
+
+    }
+    makeActionBasedOnHandPosition(x,y);
+}
+
 void MainView::makeActionBasedOnFingersNum(const int &num_of_fingers)
 {
     ui->txtPanel->append(QString("Fingers Found: ") + QString::number(num_of_fingers));
+
+    if (num_of_fingers < 4 && not_release == false)
+    {
+#ifdef __APPLE__
+        CGEventRef click_down = CGEventCreateMouseEvent(NULL,
+                                                        kCGEventLeftMouseDown,
+                                                        CGPointMake(QCursor::pos().x(), QCursor::pos().y()),
+                                                        kCGMouseButtonLeft);
+        CGEventPost(kCGHIDEventTap, click_down);
+        CFRelease(click_down);
+        not_release = true;
+#endif
+        ui->txtPanel->append(QString("Click"));
+
+    }
+    else if (num_of_fingers > 3 && not_release == true)
+    {
+#ifdef __APPLE__
+        CGEventRef click_up_left = CGEventCreateMouseEvent(NULL,
+                                                           kCGEventLeftMouseUp,
+                                                           CGPointMake(QCursor::pos().x(), QCursor::pos().y()),
+                                                           kCGMouseButtonLeft);
+        CGEventRef click_up_right = CGEventCreateMouseEvent(NULL,
+                                                            kCGEventLeftMouseUp,
+                                                            CGPointMake(QCursor::pos().x(), QCursor::pos().y()),
+                                                            kCGMouseButtonRight);
+        CGEventPost(kCGHIDEventTap, click_up_left);
+        CGEventPost(kCGHIDEventTap, click_up_right);
+        CFRelease(click_up_left);
+        CFRelease(click_up_right);
+        not_release = false;
+        //#else
+        ui->txtPanel->append(QString("Release"));
+#endif
+    }
+
+    //    if (not_release)
+    //    {
+    //#ifdef __APPLE__
+    //        CGEventRef click_up_left = CGEventCreateMouseEvent(NULL,
+    //                                                      kCGEventLeftMouseUp,
+    //                                                      CGPointMake(QCursor::pos().x(), QCursor::pos().y()),
+    //                                                      kCGMouseButtonLeft);
+    //        CGEventRef click_up_right = CGEventCreateMouseEvent(NULL,
+    //                                                      kCGEventLeftMouseUp,
+    //                                                      CGPointMake(QCursor::pos().x(), QCursor::pos().y()),
+    //                                                      kCGMouseButtonRight);
+    //        CGEventPost(kCGHIDEventTap, click_up_left);
+    //        CGEventPost(kCGHIDEventTap, click_up_right);
+    //        CFRelease(click_up_left);
+    //        CFRelease(click_up_right);
+    //        not_release = false;
+    //#else
+    //        ui->txtPanel->append(QString("Release"));
+    //#endif
+    //    }
+
+    //    if (num_of_fingers == 0 || num_of_fingers == 1)
+    //    {
+    //#ifdef __APPLE__
+    //        CGEventRef click_down = CGEventCreateMouseEvent(NULL,
+    //                                                        kCGEventLeftMouseDown,
+    //                                                        CGPointMake(QCursor::pos().x(), QCursor::pos().y()),
+    //                                                        kCGMouseButtonLeft);
+    //        CGEventPost(kCGHIDEventTap, click_down);
+    //        CFRelease(click_down);
+    //        not_release = true;
+    //#else
+    //        ui->txtPanel->append(QString("Click"));
+    //#endif
+    //    }
+    //    else if (num_of_fingers == 3)
+    //    {
+    //#ifdef __APPLE__
+    //        CGEventRef click_down = CGEventCreateMouseEvent(NULL,
+    //                                                        kCGEventLeftMouseDown,
+    //                                                        CGPointMake(QCursor::pos().x(), QCursor::pos().y()),
+    //                                                        kCGMouseButtonRight);
+    //        CGEventPost(kCGHIDEventTap, click_down);
+    //        CFRelease(click_down);
+    //        not_release = true;
+    //#else
+    //        ui->txtPanel->append(QString("Click"));
+    //#endif
+    //    }
+
 }
 
+//int last_x = -1, last_y=-1;
 void MainView::makeActionBasedOnHandPosition(const int & x, const int & y)
 {
+    //    if (std::abs(last_x - x) < 2 || std::abs(last_y - y) < 2 )
+    //        return;
+    //    last_x = x;
+    //    last_y = y;
     ui->txtPanel->append(QString("Hand Position: ") + QString::number(x) + ", " + QString::number(y));
+    QRect screen = QApplication::desktop()->screen()->geometry();
+    float x_coord = x > 100 ? x - 100:0;
+    if (x_coord > _ROI.width-200)
+        x_coord = _ROI.width-200;
+    float y_coord = y > 80 ? y - 100:0;
+    if (y_coord > _ROI.height-200)
+        y_coord = _ROI.height-200;
 
-    //    QRect screen = QApplication::desktop()->screen(
-    //                QApplication::desktop()->screenNumber(QCursor::pos())
-    //                )->geometry();
+    auto cursor_x = static_cast<int>(x_coord/(_ROI.width-160)*screen.width());
+    auto cursor_y = static_cast<int>(y_coord/(_ROI.height-160)*screen.height());
 
-    //    QCursor::setPos(static_cast<int>(static_cast<float>(x > 20 ? x - 20:0)/_ROI.width*screen.width()),
-    //                    static_cast<int>(static_cast<float>(y > 20 ? y - 20:0)/_ROI.height*screen.height()));
+#ifdef __APPLE__
+    CGEventRef mouse_move;
+    if (not_release == true)
+    {
+        mouse_move = CGEventCreateMouseEvent(NULL, kCGEventLeftMouseDragged,
+                                             CGPointMake(cursor_x, cursor_y),
+                                             kCGMouseButtonLeft);
+    }
+    else
+    {
+        mouse_move = CGEventCreateMouseEvent(NULL,
+                                             kCGEventMouseMoved,
+                                             CGPointMake(cursor_x, cursor_y),
+                                             kCGMouseButtonLeft);
+    }
+    CGEventPost(kCGHIDEventTap, mouse_move);
+    CFRelease(mouse_move);
+#else
+    QCursor::setPos(x, y);
+#endif
 }
 
 void MainView::updateTrackingDialog()
@@ -186,13 +384,14 @@ void MainView::on_btnStart_clicked()
         {
             _camera_capture->blockSignals(false);
             _camera->start();
-            _camera_capture_timer->start(20);
-            ui->btnStart->setText("Pause");
         }
         catch (...)
         {
             ui->txtPanel->append(QString("Error: Camera cannot be accessed."));
+            return;
         }
+        _camera_capture_timer->start(20);
+        ui->btnStart->setText("Pause");
     }
 }
 
@@ -205,6 +404,8 @@ void MainView::imageCapture()
     else
     {
         ui->txtPanel->append("Failed to Capture Image.");
+        _camera_capture_timer->stop();
+        ui->btnStart->setText("Start");
     }
 }
 
@@ -212,10 +413,16 @@ void MainView::processCameraCaptureError(const int &, const QCameraImageCapture:
 {
     ui->txtPanel->append("Failed to Capture Image.");
     ui->txtPanel->append(error_string);
+    _camera_capture->blockSignals(false);
+    _camera_capture_timer->stop();
+    ui->btnStart->setText("Start");
 }
 
 void MainView::processCameraError(const QCamera::Error & )
 {
     ui->txtPanel->append("Failed to Load Image.");
     ui->txtPanel->append(_camera->errorString());
+    _camera_capture->blockSignals(false);
+    _camera_capture_timer->stop();
+    ui->btnStart->setText("Start");
 }

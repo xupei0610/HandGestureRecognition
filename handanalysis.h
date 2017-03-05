@@ -1,7 +1,6 @@
 #ifndef HANDTRACKER_H
 #define HANDTRACKER_H
 
-#include <list>
 #include <vector>
 
 #include <QObject>
@@ -28,6 +27,7 @@ signals:
     void detected();
     void fingersFound(int);
     void handPos(int x, int y);
+    void handSignal(int x, int y, int num_of_fingers);
 
 public:
     typedef std::vector<cv::Point> Contour;
@@ -88,9 +88,12 @@ private:
     cv::Mat filtered_frame;
     cv::Mat convexity_frame;
 
+    bool _is_tracking = false;
+
+    std::vector<Contour> _contours;
     void _skinColorDetect();
-    const Contour _contourExtract();
-    void _gestureRecognize(const Contour &);
+    const std::pair<std::vector<int>, int> _contourExtract();
+    std::pair<std::pair<int,int>, int> _gestureRecognize(const Contour & contour);
 
 };
 
