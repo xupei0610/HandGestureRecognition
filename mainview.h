@@ -8,25 +8,22 @@
 #include <QCameraImageCapture>
 #include <QScreen>
 #include <QDesktopWidget>
+#include <QMessageBox>
 
 #include <opencv2/opencv.hpp>
 
-#if defined(_WIN32) || defined(WIN32) || defined(__CYGWIN__) || defined(__MINGW32__) || defined(__BORLANDC__)
-    #define __WIN__
-    #include <windows.h>
-#else
-    #ifdef __APPLE__
-    #include <ApplicationServices/ApplicationServices.h>
-    #else
-        #include <X11/Xlib.h>
-
-    #endif
-#endif
-
 #include "qtcvimageconverter.h"
-#include "handanalysis.h"
+#include "handdetector.h"
+#include "mousecontroller.h"
 #include "settingdialog.h"
 #include "trackingdialog.h"
+
+using namespace cv;
+#ifdef USE_GPU
+using namespace cv::cuda;
+#endif
+
+#define CAMERA_FPS 50
 
 namespace Ui {
 class MainView;
@@ -46,15 +43,14 @@ public slots:
                 const int & start_y_percent,
                 const int & end_x_percent,
                 const int & end_y_percent);
-    void makeActionBasedOnFingersNum(const int & num_of_fingers);
-    void makeActionBasedOnHandPosition(const int & x, const int & y);
-    void makeAction(const int & x, const int & y, const int & num_of_fingers);
 
 private slots:
     // Update Tracking Dialog
     void updateTrackingDialog();
     // Process Image captured by camera
+    void processFrame(const Mat&);
     void processFrame(const int &, const QImage &);
+    void infoMouseReleased();
     // Capture Image by camera
     void imageCapture();
     // Start/Stop Recognition
@@ -63,28 +59,52 @@ private slots:
     void on_btnSetting_clicked();
     // Open Tracking Dialog
     void on_btnTracking_clicked();
-    // Process Trivial Errors
+    // Set background for substractor
+    void on_btnSetBackground_clicked();
+#ifdef USE_QCAMERA
+    // Process Campera Errors
     void processCameraCaptureError(const int &, const QCameraImageCapture::Error &, const QString &);
     void processCameraError(const QCamera::Error &);
+#endif
+    // Show Error Message when failing to load the camera
+    void showCameraErrorMessage();
+
 
 private:
     // Widgets for Camera
+    QTimer * _camera_capture_timer;
+#ifndef USE_QCAMERA
+    VideoCapture * _camera;
+#else
     QCamera * _camera;
     QCameraImageCapture * _camera_capture;
     QCameraViewfinder * _camera_viewfinder;
-    QTimer * _camera_capture_timer;
+#endif
+
 
     // Hand Recognition Class
-    HandAnalysis * _tracker;
+    HandDetector * _detector;
+    // Mouse Controller Class
+    MouseController * _mouse;
+
     // region of interesting
-    cv::Rect _ROI;
+    Rect _ROI;
+
+    // Screen Information
+    QDesktopWidget _qt_widget;
+
+    // tracking has begun or not
+    bool _is_tracking = false;
 
     // Main UI
-    Ui::MainView *ui;
+    Ui::MainView *_ui;
     // Setting Dialog
-    SettingDialog * setting_dialog;
+    SettingDialog * _setting_dialog;
     // Tracking Dialog
-    TrackingDialog * tracking_dialog;
+    TrackingDialog * _tracking_dialog;
+    // Error Message Box
+    QMessageBox * _error_message_box;
+
 };
 
 #endif // MAINVIEW_H

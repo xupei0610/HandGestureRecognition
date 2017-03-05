@@ -28,32 +28,24 @@ public:
     void setErode(const bool &);
     void setDilate(const bool &);
     void setMedianBlur(const bool &);
-
-    int getMaxH();
-    int getMinH();
-    int getMaxS();
-    int getMinS();
-    int getMaxV();
-    int getMinV();
-    bool getErode();
-    bool getDilate();
-    bool getMedianBlur();
-    std::pair<std::pair<int, int>, std::pair<int, int> > getROI();
+    void setDetectionArea(const int &);
+    //void setSensitivity(const int &);
+    void setActionInterval(const int &);
 
 private slots:
-    void on_barMinH_valueChanged(int value);
-    void on_barMaxH_valueChanged(int value);
-    void on_barMinS_valueChanged(int value);
-    void on_barMaxS_valueChanged(int value);
-    void on_barMaxV_valueChanged(int value);
-    void on_barMinV_valueChanged(int value);
-    void on_chkErode_toggled(bool checked);
-    void on_chkDilate_toggled(bool checked);
-    void on_chkMedianBlur_toggled(bool checked);
-    void on_barMinHorizon_valueChanged(int value);
-    void on_barMaxVertical_valueChanged(int value);
-    void on_barMaxHorizon_valueChanged(int value);
-    void on_barMinVertical_valueChanged(int value);
+    void on_barMinH_valueChanged(const int &value);
+    void on_barMaxH_valueChanged(const int &value);
+    void on_barMinS_valueChanged(const int &value);
+    void on_barMaxS_valueChanged(const int &value);
+    void on_barMaxV_valueChanged(const int &value);
+    void on_barMinV_valueChanged(const int &value);
+    void on_barMinHorizon_valueChanged(const int &value);
+    void on_barMaxVertical_valueChanged(const int &value);
+    void on_barMaxHorizon_valueChanged(const int &value);
+    void on_barMinVertical_valueChanged(const int &value);
+    void on_boxDetectionArea_valueChanged(const int &arg1);
+    //void on_boxSensitivity_valueChanged(const int &arg1);
+    void on_boxInterval_valueChanged(const int &arg1);
     void on_btnReset_clicked();
 
 signals:
@@ -64,9 +56,9 @@ signals:
                    const int & start_y_percent,
                    const int & end_x_percent,
                    const int & end_y_percent);
-    void changeErode(bool);
-    void changeDilate(bool);
-    void changeMedianBlur(bool);
+    void changeDetectionArea(const int &);
+//    void changeSensitivity(const int &);
+    void changeActionInterval(const int &);
 
 private:
     int _max_H = 0;

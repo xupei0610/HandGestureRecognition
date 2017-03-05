@@ -25,19 +25,22 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += main.cpp\
         mainview.cpp \
-    handanalysis.cpp \
     settingdialog.cpp \
-    trackingdialog.cpp
+    trackingdialog.cpp \
+    handdetector.cpp \
+    mousecontroller.cpp
 
 HEADERS  += mainview.h \
     qtcvimageconverter.h \
-    handanalysis.h \
     settingdialog.h \
-    trackingdialog.h
+    trackingdialog.h \
+    handdetector.h \
+    mousecontroller.h
 
 FORMS    += mainview.ui \
     settingdialog.ui \
     trackingdialog.ui
 
-INCLUDEPATH += /usr/local/Cellar/opencv3/3.2.0/include
-LIBS += -L/usr/local/Cellar/opencv3/3.2.0/lib -lopencv_imgproc -lopencv_core -framework ApplicationServices
+INCLUDEPATH += /usr/local/include
+LIBS += -L/usr/local/lib -lopencv_videoio -lopencv_video -lopencv_imgproc -lopencv_core
+LIBS += -framework ApplicationServices

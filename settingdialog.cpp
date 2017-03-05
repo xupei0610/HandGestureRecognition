@@ -13,30 +13,6 @@ SettingDialog::~SettingDialog()
     delete ui;
 }
 
-void SettingDialog::setErode(const bool & val)
-{
-    if (val)
-        ui->chkErode->setCheckState(Qt::Checked);
-    else
-        ui->chkErode->setCheckState(Qt::Unchecked);
-}
-
-void SettingDialog::setDilate(const bool & val)
-{
-    if (val)
-        ui->chkDilate->setCheckState(Qt::Checked);
-    else
-        ui->chkDilate->setCheckState(Qt::Unchecked);
-}
-
-void SettingDialog::setMedianBlur(const bool & val)
-{
-    if (val)
-        ui->chkMedianBlur->setCheckState(Qt::Checked);
-    else
-        ui->chkMedianBlur->setCheckState(Qt::Unchecked);
-}
-
 void SettingDialog::setMaxH(const int & val)
 {
     ui->barMaxH->setValue(val);
@@ -87,6 +63,20 @@ void SettingDialog::setMinROIVertical(const int & val)
     ui->barMinVertical->setValue(val);
 }
 
+void SettingDialog::setDetectionArea(const int & val)
+{
+    ui->boxDetectionArea->setValue(val);
+}
+
+//void SettingDialog::setSensitivity(const int & val)
+//{
+//    ui->boxSensitivity->setValue(val);
+//}
+
+void SettingDialog::setActionInterval(const int & val)
+{
+    ui->boxInterval->setValue(val);
+}
 
 void SettingDialog::_emitColorBoundSignal()
 {
@@ -111,141 +101,87 @@ void SettingDialog::on_btnReset_clicked()
     emit resetSetting();
 }
 
-void SettingDialog::on_barMinH_valueChanged(int value)
+void SettingDialog::on_barMinH_valueChanged(const int &value)
 {
     ui->lblMinH->setText(QString::number(value));
     _min_H = value;
     _emitColorBoundSignal();
 }
 
-void SettingDialog::on_barMaxH_valueChanged(int value)
+void SettingDialog::on_barMaxH_valueChanged(const int &value)
 {
     ui->lblMaxH->setText(QString::number(value));
     _max_H = value;
     _emitColorBoundSignal();
 }
 
-void SettingDialog::on_barMinS_valueChanged(int value)
+void SettingDialog::on_barMinS_valueChanged(const int &value)
 {
     ui->lblMinS->setText(QString::number(value));
     _min_S = value;
     _emitColorBoundSignal();
 }
 
-void SettingDialog::on_barMaxS_valueChanged(int value)
+void SettingDialog::on_barMaxS_valueChanged(const int &value)
 {
     ui->lblMaxS->setText(QString::number(value));
     _max_S = value;
     _emitColorBoundSignal();
 }
 
-
-void SettingDialog::on_barMinV_valueChanged(int value)
+void SettingDialog::on_barMinV_valueChanged(const int &value)
 {
     ui->lblMinV->setText(QString::number(value));
     _min_V = value;
     _emitColorBoundSignal();
 }
 
-void SettingDialog::on_barMaxV_valueChanged(int value)
+void SettingDialog::on_barMaxV_valueChanged(const int &value)
 {
     ui->lblMaxV->setText(QString::number(value));
     _max_V = value;
     _emitColorBoundSignal();
 }
 
-void SettingDialog::on_barMinHorizon_valueChanged(int value)
+void SettingDialog::on_barMinHorizon_valueChanged(const int &value)
 {
     ui->lblMinHorizon->setText(QString::number(value) + QString("%"));
     _min_ROI_horizon = value;
     _emitROISignal();
 }
 
-void SettingDialog::on_barMaxHorizon_valueChanged(int value)
+void SettingDialog::on_barMaxHorizon_valueChanged(const int &value)
 {
     ui->lblMaxHorizon->setText(QString::number(value) + QString("%"));
     _max_ROI_horizon = value;
     _emitROISignal();
 }
 
-void SettingDialog::on_barMinVertical_valueChanged(int value)
+void SettingDialog::on_barMinVertical_valueChanged(const int &value)
 {
     ui->lblMinVertical->setText(QString::number(value) + QString("%"));
     _min_ROI_vertical = value;
     _emitROISignal();
 }
 
-void SettingDialog::on_barMaxVertical_valueChanged(int value)
+void SettingDialog::on_barMaxVertical_valueChanged(const int &value)
 {
     ui->lblMaxVertical->setText(QString::number(value) + QString("%"));
     _max_ROI_vertical = value;
     _emitROISignal();
 }
 
-bool SettingDialog::getErode()
+void SettingDialog::on_boxDetectionArea_valueChanged(const int &arg1)
 {
-    return ui->chkErode->checkState();
+    emit changeDetectionArea(arg1);
 }
 
-bool SettingDialog::getDilate()
-{
-    return ui->chkDilate->checkState();
-}
+//void SettingDialog::on_boxSensitivity_valueChanged(const int &arg1)
+//{
+//    emit changeSensitivity(arg1);
+//}
 
-bool SettingDialog::getMedianBlur()
+void SettingDialog::on_boxInterval_valueChanged(const int & arg1)
 {
-    return ui->chkMedianBlur->checkState();
-}
-
-int SettingDialog::getMaxH()
-{
-    return _max_H;
-}
-
-int SettingDialog::getMinH()
-{
-    return _min_H;
-}
-
-int SettingDialog::getMaxS()
-{
-    return _max_S;
-}
-
-int SettingDialog::getMinS()
-{
-    return _min_S;
-}
-
-int SettingDialog::getMaxV()
-{
-    return _max_V;
-}
-
-int SettingDialog::getMinV()
-{
-    return _min_V;
-}
-
-std::pair<std::pair<int, int>, std::pair<int, int> > SettingDialog::getROI()
-{
-    return std::make_pair(
-                std::make_pair(_min_ROI_horizon, _max_ROI_horizon),
-                std::make_pair(_min_ROI_vertical,_max_ROI_vertical)
-                );
-}
-
-void SettingDialog::on_chkErode_toggled(bool checked)
-{
-    emit changeErode(checked);
-}
-
-void SettingDialog::on_chkDilate_toggled(bool checked)
-{
-    emit changeDilate(checked);
-}
-
-void SettingDialog::on_chkMedianBlur_toggled(bool checked)
-{
-    emit changeMedianBlur(checked);
+    emit changeActionInterval(arg1);
 }
