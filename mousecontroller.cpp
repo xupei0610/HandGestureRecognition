@@ -19,6 +19,8 @@ MouseController::~MouseController()
 {
     if (_kalman_filter != nullptr)
         delete _kalman_filter;
+    if (_action_timer != nullptr)
+        delete _action_timer;
 }
 
 Point MouseController::estimateCursorPos(const Point & tracked_point)
@@ -38,7 +40,7 @@ MouseController::MouseAction MouseController::makeAction(const int & cursor_pos_
 
     if (num_of_fingers == 3)
     {
-        if (_has_released == false || (_action_timer->isActive() == false && _action_frame_count[MOUSE_ACTION_DRAG] > DEFAULT_MOUSE_SENSITIVITY))
+        if (_has_released == false || (_action_timer->isActive() == false && _action_frame_count[MOUSE_ACTION_DRAG] > _action_sensitivity))
         {
             _action_timer->start(_action_interval);
             clearActionFrameCount();
@@ -55,7 +57,7 @@ MouseController::MouseAction MouseController::makeAction(const int & cursor_pos_
 
         if (num_of_fingers == 2)
         {
-            if (_action_frame_count[MOUSE_ACTION_SINGLE_CLICK] > DEFAULT_MOUSE_SENSITIVITY)
+            if (_action_frame_count[MOUSE_ACTION_SINGLE_CLICK] > _action_sensitivity)
             {
                 _action_timer->start(_action_interval);
                 clearActionFrameCount();
@@ -69,7 +71,7 @@ MouseController::MouseAction MouseController::makeAction(const int & cursor_pos_
         }
         else if (num_of_fingers == 4)
         {
-            if (_action_frame_count[MOUSE_ACTION_RIGHT_CLICK] > DEFAULT_MOUSE_SENSITIVITY)
+            if (_action_frame_count[MOUSE_ACTION_RIGHT_CLICK] > _action_sensitivity)
             {
                 _action_timer->start(_action_interval);
                 clearActionFrameCount();
@@ -83,7 +85,7 @@ MouseController::MouseAction MouseController::makeAction(const int & cursor_pos_
         }
         else if (num_of_fingers >= 5)
         {
-            if (_action_frame_count[MOUSE_ACTION_DOUBLE_CLICK] > DEFAULT_MOUSE_SENSITIVITY)
+            if (_action_frame_count[MOUSE_ACTION_DOUBLE_CLICK] > _action_sensitivity)
             {
                 _action_timer->start(_action_interval);
                 clearActionFrameCount();
@@ -97,7 +99,7 @@ MouseController::MouseAction MouseController::makeAction(const int & cursor_pos_
         }
     }
     _action_frame_count[0]++;
-    if (_action_frame_count[0] > 2*DEFAULT_MOUSE_SENSITIVITY)
+    if (_action_frame_count[0] > 2*_action_sensitivity)
         clearActionFrameCount();
     mouseMove(cursor_pos_x, cursor_pos_y);
     return MOUSE_ACTION_MOVE;
@@ -244,6 +246,11 @@ void MouseController::_releaseMouse()
 void MouseController::setActionInterval(const int &interval_in_ms)
 {
     _action_interval = interval_in_ms;
+}
+
+void MouseController::setActionSensitivity(const int &interval_in_frames)
+{
+    _action_sensitivity = interval_in_frames;
 }
 
 bool MouseController::hasReleased()

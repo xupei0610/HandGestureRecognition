@@ -68,10 +68,20 @@ void SettingDialog::setDetectionArea(const int & val)
     ui->boxDetectionArea->setValue(val);
 }
 
-//void SettingDialog::setSensitivity(const int & val)
-//{
-//    ui->boxSensitivity->setValue(val);
-//}
+void SettingDialog::setSensitivity(const int & val)
+{
+    ui->boxSensitivity->setValue(val);
+}
+
+int SettingDialog::getSensitivity()
+{
+    return ui->boxSensitivity->value();
+}
+
+void SettingDialog::setSamplingFPS(const int & val)
+{
+    ui->boxFPS->setValue(val);
+}
 
 void SettingDialog::setActionInterval(const int & val)
 {
@@ -176,12 +186,17 @@ void SettingDialog::on_boxDetectionArea_valueChanged(const int &arg1)
     emit changeDetectionArea(arg1);
 }
 
-//void SettingDialog::on_boxSensitivity_valueChanged(const int &arg1)
-//{
-//    emit changeSensitivity(arg1);
-//}
-
 void SettingDialog::on_boxInterval_valueChanged(const int & arg1)
 {
     emit changeActionInterval(arg1);
+}
+
+void SettingDialog::on_boxSensitivity_valueChanged(const int & arg1)
+{
+    emit changeSensitivity(arg1);
+}
+
+void SettingDialog::on_boxFPS_valueChanged(const int &arg1)
+{
+    emit changeSamplingFPS(arg1);
 }

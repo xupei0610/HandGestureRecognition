@@ -29,8 +29,10 @@ public:
     void setDilate(const bool &);
     void setMedianBlur(const bool &);
     void setDetectionArea(const int &);
-    //void setSensitivity(const int &);
+    void setSensitivity(const int &);
+    int  getSensitivity();
     void setActionInterval(const int &);
+    void setSamplingFPS(const int &);
 
 private slots:
     void on_barMinH_valueChanged(const int &value);
@@ -44,9 +46,11 @@ private slots:
     void on_barMaxHorizon_valueChanged(const int &value);
     void on_barMinVertical_valueChanged(const int &value);
     void on_boxDetectionArea_valueChanged(const int &arg1);
-    //void on_boxSensitivity_valueChanged(const int &arg1);
+    void on_boxSensitivity_valueChanged(const int & arg1);
+    void on_boxFPS_valueChanged(const int & arg1);
     void on_boxInterval_valueChanged(const int &arg1);
     void on_btnReset_clicked();
+
 
 signals:
     void resetSetting();
@@ -57,8 +61,9 @@ signals:
                    const int & end_x_percent,
                    const int & end_y_percent);
     void changeDetectionArea(const int &);
-//    void changeSensitivity(const int &);
+    void changeSensitivity(const int &);
     void changeActionInterval(const int &);
+    void changeSamplingFPS(const int &);
 
 private:
     int _max_H = 0;

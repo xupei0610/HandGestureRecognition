@@ -7,16 +7,16 @@
 #include <opencv2/opencv.hpp>
 
 namespace Ui {
-class TrackingDialog;
+class MonitorDialog;
 }
 
-class TrackingDialog : public QDialog
+class MonitorDialog : public QDialog
 {
     Q_OBJECT
 
 public:
-    explicit TrackingDialog(QWidget *parent = 0);
-    ~TrackingDialog();
+    explicit MonitorDialog(QWidget *parent = 0);
+    ~MonitorDialog();
 
 
     void updateWindow(const QPixmap & image11,
@@ -25,7 +25,7 @@ public:
                       const QPixmap & image22);
 
 private:
-    Ui::TrackingDialog *ui;
+    Ui::MonitorDialog *ui;
     QVBoxLayout* main_layout; // Outer layout to make the dialog expandable
 };
 

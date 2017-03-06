@@ -16,14 +16,14 @@
 #include "handdetector.h"
 #include "mousecontroller.h"
 #include "settingdialog.h"
-#include "trackingdialog.h"
+#include "monitordialog.h"
 
 using namespace cv;
 #ifdef USE_GPU
 using namespace cv::cuda;
 #endif
 
-#define CAMERA_FPS 50
+#define DEFAULT_CAMERA_FPS 50
 
 namespace Ui {
 class MainView;
@@ -43,6 +43,8 @@ public slots:
                 const int & start_y_percent,
                 const int & end_x_percent,
                 const int & end_y_percent);
+    void setActionSensitivity(const int &sensitivity_in_ms);
+    void setCameraFPS(const int & fps);
 
 private slots:
     // Update Tracking Dialog
@@ -58,7 +60,7 @@ private slots:
     // Open Setting Dialog
     void on_btnSetting_clicked();
     // Open Tracking Dialog
-    void on_btnTracking_clicked();
+    void on_btnMonitor_clicked();
     // Set background for substractor
     void on_btnSetBackground_clicked();
 #ifdef USE_QCAMERA
@@ -69,23 +71,22 @@ private slots:
     // Show Error Message when failing to load the camera
     void showCameraErrorMessage();
 
-
 private:
     // Widgets for Camera
-    QTimer * _camera_capture_timer;
+    QTimer * _camera_capture_timer = nullptr;
 #ifndef USE_QCAMERA
-    VideoCapture * _camera;
+    VideoCapture * _camera = nullptr;
 #else
-    QCamera * _camera;
-    QCameraImageCapture * _camera_capture;
-    QCameraViewfinder * _camera_viewfinder;
+    QCamera * _camera = nullptr;
+    QCameraImageCapture * _camera_capture = nullptr;
+    QCameraViewfinder * _camera_viewfinder = nullptr;
 #endif
 
 
     // Hand Recognition Class
-    HandDetector * _detector;
+    HandDetector * _detector = nullptr;
     // Mouse Controller Class
-    MouseController * _mouse;
+    MouseController * _mouse = nullptr;
 
     // region of interesting
     Rect _ROI;
@@ -96,12 +97,15 @@ private:
     // tracking has begun or not
     bool _is_tracking = false;
 
+    // FPS of camera
+    int _camera_FPS = DEFAULT_CAMERA_FPS;
+
     // Main UI
     Ui::MainView *_ui;
     // Setting Dialog
     SettingDialog * _setting_dialog;
     // Tracking Dialog
-    TrackingDialog * _tracking_dialog;
+    MonitorDialog * _monitor_dialog;
     // Error Message Box
     QMessageBox * _error_message_box;
 

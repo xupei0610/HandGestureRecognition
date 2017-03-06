@@ -14,7 +14,7 @@ MainView::MainView(QWidget *parent) :
 
     // Setup child dialogs/windows
     _setting_dialog = new SettingDialog(this);
-    _tracking_dialog = new TrackingDialog(this);
+    _monitor_dialog = new MonitorDialog(this);
     _error_message_box = new QMessageBox(this);
 
     // Build connections between detector and dialogs
@@ -23,8 +23,9 @@ MainView::MainView(QWidget *parent) :
     connect(_setting_dialog, SIGNAL(changeColorLowerBound(int,int, int)), _detector, SLOT(setSkinColorLowerBound(int,int,int)));
     connect(_setting_dialog, SIGNAL(changeROI(int,int, int, int)), this, SLOT(setROI(int,int,int,int)));
     connect(_setting_dialog, SIGNAL(changeDetectionArea(int)), _detector, SLOT(setDetectionArea(int)));
-    //    connect(_setting_dialog, SIGNAL(changeSensitivity(int)), mouse, SLOT(setSensitivity(int)));
     connect(_setting_dialog, SIGNAL(changeActionInterval(int)), _mouse, SLOT(setActionInterval(int)));
+    connect(_setting_dialog, SIGNAL(changeSamplingFPS(int)), this, SLOT(setCameraFPS(int)));
+    connect(_setting_dialog, SIGNAL(changeSensitivity(int)), this, SLOT(setActionSensitivity(int)));
     connect(_mouse, SIGNAL(mouseReleased()), this, SLOT(infoMouseReleased()));
 
     // Load default setting
@@ -68,7 +69,7 @@ MainView::~MainView()
     delete _camera_capture_timer;
     delete _error_message_box;
     delete _setting_dialog;
-    delete _tracking_dialog;
+    delete _monitor_dialog;
     delete _ui;
 }
 
@@ -83,7 +84,8 @@ void MainView::makeDefaultSetting()
     _setting_dialog->setMaxV(DEFAULT_SKIN_COLOR_MAX_V);
 
     _setting_dialog->setDetectionArea(DEFAULT_DETECTION_AREA);
-    //    _setting_dialog->setSensitivity(DEFAULT_MOUSE_SENSITIVITY);
+    _setting_dialog->setSensitivity(DEFAULT_MOUSE_SENSITIVITY*1000/DEFAULT_CAMERA_FPS);
+    _setting_dialog->setSamplingFPS(DEFAULT_CAMERA_FPS);
     _setting_dialog->setActionInterval(DEFAULT_MOUSE_ACTION_INTERVAL);
 
     _setting_dialog->setMinROIHorizon(48);
@@ -91,6 +93,19 @@ void MainView::makeDefaultSetting()
     _setting_dialog->setMinROIVertical(2);
     _setting_dialog->setMaxROIVertical(96);
 
+}
+
+void MainView::setCameraFPS(const int & fps)
+{
+    _camera_FPS = fps;
+    setActionSensitivity(_setting_dialog->getSensitivity());
+    if (_camera_capture_timer != nullptr && _camera_capture_timer->isActive())
+        _camera_capture_timer->start(_camera_FPS);
+}
+
+void MainView::setActionSensitivity(const int & sensitivity_in_ms)
+{
+    _mouse->setActionSensitivity(sensitivity_in_ms*_camera_FPS/1000);
 }
 
 void MainView::setROI(const int & start_x_percent,
@@ -170,8 +185,8 @@ void MainView::processFrame(const int &, const QImage & captured_image)
 
 void MainView::updateTrackingDialog()
 {
-    if (_tracking_dialog->isVisible())
-        _tracking_dialog->updateWindow(QtCVImageConverter::CvMat2QPixmap(
+    if (_monitor_dialog->isVisible())
+        _monitor_dialog->updateWindow(QtCVImageConverter::CvMat2QPixmap(
                                            _detector->getInterestedFrame()
                                            ),
                                        QtCVImageConverter::CvMat2QPixmap(
@@ -193,10 +208,10 @@ void MainView::on_btnSetting_clicked()
     _setting_dialog->activateWindow();
 }
 
-void MainView::on_btnTracking_clicked()
+void MainView::on_btnMonitor_clicked()
 {
-    _tracking_dialog->show();
-    _tracking_dialog->raise();
+    _monitor_dialog->show();
+    _monitor_dialog->raise();
     _setting_dialog->activateWindow();
 }
 
@@ -225,7 +240,7 @@ void MainView::on_btnStart_clicked()
             return;
         }
 #endif
-        _camera_capture_timer->start(1000/CAMERA_FPS);
+        _camera_capture_timer->start(1000/_camera_FPS);
         _ui->btnStart->setText("Track");
         _is_tracking = false;
     }
@@ -311,3 +326,4 @@ void MainView::on_btnSetBackground_clicked()
                     );
     }
 }
+

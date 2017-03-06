@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>MainView</string>
+   <string>Gesture Recogniton v2.0b - MTAGA</string>
   </property>
   <widget class="QLabel" name="lblVideo">
    <property name="geometry">
@@ -62,7 +62,7 @@
     <string>Setting</string>
    </property>
   </widget>
-  <widget class="QPushButton" name="btnTracking">
+  <widget class="QPushButton" name="btnMonitor">
    <property name="geometry">
     <rect>
      <x>680</x>
@@ -72,7 +72,7 @@
     </rect>
    </property>
    <property name="text">
-    <string>Tracking</string>
+    <string>Monitor</string>
    </property>
   </widget>
   <widget class="QPushButton" name="btnSetBackground">

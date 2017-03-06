@@ -1,9 +1,9 @@
-#include "trackingdialog.h"
-#include "ui_trackingdialog.h"
+#include "monitordialog.h"
+#include "ui_monitordialog.h"
 
-TrackingDialog::TrackingDialog(QWidget *parent) :
+MonitorDialog::MonitorDialog(QWidget *parent) :
     QDialog(parent),
-    ui(new Ui::TrackingDialog)
+    ui(new Ui::MonitorDialog)
 {
     ui->setupUi(this);
     main_layout = new QVBoxLayout;
@@ -11,13 +11,13 @@ TrackingDialog::TrackingDialog(QWidget *parent) :
     setLayout(main_layout);
 }
 
-TrackingDialog::~TrackingDialog()
+MonitorDialog::~MonitorDialog()
 {
     delete main_layout;
     delete ui;
 }
 
-void TrackingDialog::updateWindow(const QPixmap & image11, const QPixmap & image12, const QPixmap & image21, const QPixmap & image22)
+void MonitorDialog::updateWindow(const QPixmap & image11, const QPixmap & image12, const QPixmap & image21, const QPixmap & image22)
 {
     ui->lblRoi->setPixmap(
                 image11.scaled(

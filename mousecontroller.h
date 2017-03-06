@@ -53,17 +53,19 @@ public:
 
 public slots:
     void setActionInterval(const int & interval_in_ms);
+    void setActionSensitivity(const int & interval_in_frames);
 
 protected slots:
     void _releaseMouse();
 
 protected:
-    KalmanFilter * _kalman_filter;
+    KalmanFilter * _kalman_filter = nullptr;
 
     std::vector<int> _action_frame_count{0,0,0,0,0,0};
     QTimer * _action_timer; // Timer who counts the interval between two actions
     bool _has_released = true; // if mouse button has been released
     int _action_interval = DEFAULT_MOUSE_ACTION_INTERVAL;
+    int _action_sensitivity = DEFAULT_MOUSE_SENSITIVITY;
     std::pair<int,int> _last_drag_pos;  // last pos of drag action, used to release mouse left button
 
 };
