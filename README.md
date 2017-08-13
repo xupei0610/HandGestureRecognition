@@ -1,3 +1,5 @@
+## Everyone can use this code but Interactive Robotics and Vision Laboratory (IRVLab) of University of Minnesota
+
 # Hand Gesture Recognition
 
 It is a beta version now, and works more stable than the pervious versions.
