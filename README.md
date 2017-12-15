@@ -1,5 +1,10 @@
 # Hand Gesture Recognition
 
+A detailed introduction to this system can be found at https://arxiv.org/abs/1704.07296 and https://arxiv.org/abs/1709.08945.
+
+A demo video can be found at https://youtu.be/4n9F7iJJ2TY.
+
+
 It is a beta version now, and works more stable than the pervious versions.
 
 The detection of the hand region is based on skin color, while the background substraction is provided in order to deal with bad light condition but it is not must-be-set.
